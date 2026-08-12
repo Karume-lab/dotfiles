@@ -63,11 +63,25 @@ hl.monitor({
 hl.gesture({ fingers = 4, direction = "horizontal", action = "workspace" })
 
 -- Custom App Keybindings
-hl.bind("SUPER + P", hl.dsp.exec_cmd("~/.local/share/bin/screenshot.sh c"), { description = "snip screen" })
-hl.bind("SUPER + F", hl.dsp.exec_cmd("firefox"))
-hl.bind("SUPER + C", hl.dsp.exec_cmd("antigravity"))
-hl.bind("SUPER + SHIFT + C", hl.dsp.exec_cmd("code"))
+-- SUPER + B (HyDE's browser bind) is unbound so only SUPER + F opens the browser
+hl.unbind("SUPER + B")
+hl.bind("SUPER + F", hl.dsp.exec_cmd("firefox"), {
+    description = "[Launcher|Apps] web browser",
+})
+hl.bind("SUPER + C", hl.dsp.exec_cmd("antigravity-ide"), {
+    description = "[Launcher|Apps] Antigravity IDE",
+})
+hl.bind("SUPER + SHIFT + C", hl.dsp.exec_cmd("visual-studio-code-electron"), {
+    description = "[Launcher|Apps] Visual Studio Code",
+})
+hl.bind("SUPER + O", hl.dsp.exec_cmd("opencode-desktop"), {
+    description = "[Launcher|Apps] OpenCode",
+})
 
--- Web Search overrides for UK Layout
-hl.bind("SUPER + SHIFT + slash", hl.dsp.exec_cmd("pkill -x rofi || hyde-shell rofi.websearch"))
-hl.bind("SUPER + SHIFT + question", hl.dsp.exec_cmd("pkill -x rofi || hyde-shell rofi.websearch"))
+-- Open Dolphin tiled (overrides HyDE's floating rule for org.kde.dolphin)
+hl.window_rule({
+    name = "tile-dolphin",
+    match = { class = "org\\.kde\\.dolphin" },
+    tile = true,
+    float = false,
+})
