@@ -53,12 +53,22 @@ hl.config({
 })
 
 -- Execute native Hyprland configs directly via Lua API
+-- DP-3 (Dell) on the left, eDP-1 (laptop) on the right
+hl.monitor({
+    output = "DP-3",
+    mode = "preferred",
+    position = "0x0",
+    scale = 1,
+})
 hl.monitor({
     output = "eDP-1",
     mode = "preferred",
-    position = "0x0",
+    position = "1920x0",
     scale = 1.67,
 })
+
+-- Disable phantom dongle output (LTM LCD on DP-4) — causes mouse loss on workspace 3/4
+hl.monitor({ output = "DP-4", disabled = true })
 -- Gestures (Hyprland 0.55+ API)
 hl.gesture({ fingers = 4, direction = "horizontal", action = "workspace" })
 

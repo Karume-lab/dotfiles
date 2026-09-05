@@ -1,97 +1,82 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
+# Add user configurations here
+# For HyDE to not touch your beloved configurations,
+# we added a config file for you to customize HyDE before loading zshrc
+# Edit $ZDOTDIR/.user.zsh to customize HyDE before loading zshrc
 
-# Oh-my-zsh installation path
-ZSH=/usr/share/oh-my-zsh/
+#  Plugins
+# oh-my-zsh plugins are loaded  in $ZDOTDIR/.user.zsh file, see the file for more information
 
-# Powerlevel10k theme path
+#  Aliases
+# Override aliases here in '$ZDOTDIR/.zshrc' (already set in .zshenv)
+
+# # Helpful aliases
+# alias c='clear'                                                        # clear terminal
+# alias l='eza -lh --icons=auto'                                         # long list
+# alias ls='eza -1 --icons=auto'                                         # short list
+# alias ll='eza -lha --icons=auto --sort=name --group-directories-first' # long list all
+# alias ld='eza -lhD --icons=auto'                                       # long list dirs
+# alias lt='eza --icons=auto --tree'                                     # list folder as tree
+# alias un='$aurhelper -Rns'                                             # uninstall package
+# alias up='$aurhelper -Syu'                                             # update system/package/aur
+# alias pl='$aurhelper -Qs'                                              # list installed package
+# alias pa='$aurhelper -Ss'                                              # list available package
+# alias pc='$aurhelper -Sc'                                              # remove unused cache
+# alias po='$aurhelper -Qtdq | $aurhelper -Rns -'                        # remove unused packages, also try > $aurhelper -Qqd | $aurhelper -Rsu --print -
+# alias vc='code'                                                        # gui code editor
+# alias fastfetch='fastfetch --logo-type kitty'
+
+# # Directory navigation shortcuts
+# alias ..='cd ..'
+# alias ...='cd ../..'
+# alias .3='cd ../../..'
+# alias .4='cd ../../../..'
+# alias .5='cd ../../../../..'
+
+# # Always mkdir a path (this doesn't inhibit functionality to make a single dir)
+# alias mkdir='mkdir -p'
+
+#  This is your file
+# Add your configurations here
+# export EDITOR=nvim
+# export EDITOR=code
+
+# Powerlevel10k prompt
 source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
+[[ -f $HOME/.p10k.zsh ]] && source $HOME/.p10k.zsh
 
-# List of plugins used
-export AUTO_NOTIFY_THRESHOLD=3
-plugins+=(auto-notify)
-source $ZSH/oh-my-zsh.sh
+# Visual Studio Code
+alias code='visual-studio-code-electron'
 
+# Desktop notification when a long-running command finishes
+autoload -Uz add-zsh-hook
 
+_termnotify_cmd=''
+_termnotify_start=0
 
-# In case a command is not found, try to find the package that has it
-function command_not_found_handler {
-    local purple='\e[1;35m' bright='\e[0;1m' green='\e[1;32m' reset='\e[0m'
-    printf 'zsh: command not found: %s\n' "$1"
-    local entries=( ${(f)"$(/usr/bin/pacman -F --machinereadable -- "/usr/bin/$1")"} )
-    if (( ${#entries[@]} )) ; then
-        printf "${bright}$1${reset} may be found in the following packages:\n"
-        local pkg
-        for entry in "${entries[@]}" ; do
-            local fields=( ${(0)entry} )
-            if [[ "$pkg" != "${fields[2]}" ]]; then
-                printf "${purple}%s/${bright}%s ${green}%s${reset}\n" "${fields[1]}" "${fields[2]}" "${fields[3]}"
+function _termnotify_preexec {
+    _termnotify_cmd="$1"
+    _termnotify_start=$(date +%s)
+}
+add-zsh-hook preexec _termnotify_preexec
+
+function _termnotify_precmd {
+    local cmd_status=$?
+    if [[ -n "$_termnotify_cmd" ]]; then
+        local -i elapsed=$(( $(date +%s) - _termnotify_start ))
+        if (( elapsed >= 5 )); then
+            if (( cmd_status == 0 )); then
+                notify-send -a terminal -t 5000 "Done" "$_termnotify_cmd
+finished in ${elapsed}s"
+            else
+                notify-send -a terminal -u critical -t 5000 "Failed" "$_termnotify_cmd
+exited with status ${cmd_status} after ${elapsed}s"
             fi
-            printf '    /%s\n' "${fields[4]}"
-            pkg="${fields[2]}"
-        done
-    fi
-    return 127
-}
-
-# Detect AUR wrapper
-if command -v yay &>/dev/null; then
-   aurhelper="yay"
-elif command -v paru &>/dev/null; then
-   aurhelper="paru"
-fi
-
-function in {
-    local -a inPkg=("$@")
-    local -a arch=()
-    local -a aur=()
-
-    for pkg in "${inPkg[@]}"; do
-        if pacman -Si "${pkg}" &>/dev/null; then
-            arch+=("${pkg}")
-        else
-            aur+=("${pkg}")
         fi
-    done
-
-    if [[ ${#arch[@]} -gt 0 ]]; then
-        sudo pacman -S "${arch[@]}"
     fi
-
-    if [[ ${#aur[@]} -gt 0 ]]; then
-        ${aurhelper} -S "${aur[@]}"
-    fi
+    _termnotify_cmd=''
 }
+add-zsh-hook precmd _termnotify_precmd
 
-# Helpful aliases
-alias c='clear' # clear terminal
-alias l='eza -lh --icons=auto' # long list
-alias ls='eza -1 --icons=auto' # short list
-alias ll='eza -lha --icons=auto --sort=name --group-directories-first' # long list all
-alias ld='eza -lhD --icons=auto' # long list dirs
-alias lt='eza --icons=auto --tree' # list folder as tree
-alias un='$aurhelper -Rns' # uninstall package
-alias up='$aurhelper -Syu' # update system/package/aur
-alias pl='$aurhelper -Qs' # list installed package
-alias pa='$aurhelper -Ss' # list available package
-alias pc='$aurhelper -Sc' # remove unused cache
-alias po='$aurhelper -Qtdq | $aurhelper -Rns -' # remove unused packages, also try > $aurhelper -Qqd | $aurhelper -Rsu --print -
-alias vc='code' # gui code editor
+# unset -f command_not_found_handler # Uncomment to prevent searching for commands not found in package manager
 
-# Directory navigation shortcuts
-alias ..='cd ..'
-alias ...='cd ../..'
-alias .3='cd ../../..'
-alias .4='cd ../../../..'
-alias .5='cd ../../../../..'
-
-# Always mkdir a path (this doesn't inhibit functionality to make a single dir)
-alias mkdir='mkdir -p'
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-# Java Environment
-export JAVA_HOME=/usr/lib/jvm/default
+. "$HOME/.local/share/../bin/env"

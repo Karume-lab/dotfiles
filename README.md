@@ -23,6 +23,9 @@ dotfiles/
 │   ├── qt5ct/           # QT5 config tool settings
 │   ├── qt6ct/           # QT6 config tool settings
 │   ├── swappy/          # Screenshot tool config
+│   ├── hyde/            # HyDE theme selector
+│   ├── fastfetch/       # System info display
+│   ├── uwsm/            # Wayland session env vars
 │   └── [config files]   # Individual config files (.list, rc files)
 ├── dotfiles/            # Home directory dotfiles
 │   ├── .zshrc           # Zsh rc file
@@ -109,46 +112,60 @@ The script will:
 
 **Note**: Dependencies and libraries are NOT included in the package list. They will be installed automatically as dependencies when you install the main packages.
 
+### What This Repo Backs Up (Customizations Only)
+
+This repo captures **only your personal customizations** — files that HyDE does not overwrite on updates. HyDE itself manages the base configs (animations, shaders, waybar modules/layouts/styles, rofi themes, dunst defaults, etc.).
+
+**Your customizations:**
+- `hypr/hyprland.lua` — Dual-monitor layout (DP-3 + eDP-1), custom keybinds (SUPER+F/C/SHIFT+C/O), Dolphin tiled
+- `hypr/themes/theme.conf` — Catppuccin-Mocha theme with custom border colors
+- `zsh/.zshrc` — Powerlevel10k prompt, `code` alias, desktop notification hook
+- `zsh/user.zsh` — Disabled HyDE's starship prompt, added sudo plugin
+- `zsh/conf.d/binds.zsh` — Ctrl+Arrow word navigation
+- `hyde/hyde.conf` — Active theme selector (Catppuccin Mocha)
+- `fastfetch/config.jsonc` — Japanese-themed system info display
+- `uwsm/env-hyprland.d/00-hyde.sh` — HiDPI scaling, Wayland/Electron flags
+- `kitty/` — Oxocarbon theme, JetBrainsMono font override
+- `waybar/config.jsonc` — Pill-style top bar layout
+
 ### Configurations
 - Full Hyprland, Waybar, Kitty, and shell configurations
 - Rofi launcher config with custom themes
 - Dunst notifications with custom styling
 - Vim/Neovim setup
-- Zsh with plugins and history
+- Zsh with plugins, Powerlevel10k prompt, and history
 - GTK/QT theming
 - Swaylock screen locker config
+- HyDE theme selector (Catppuccin Mocha)
+- Fastfetch system info display (Japanese-themed)
+- UWSM environment variables (HiDPI scaling, Wayland/Electron flags)
 
 ## Manual Steps
 
 Some things may need manual setup:
 
-1. **SSH Keys** (if using git via SSH)
-   ```bash
-   ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519
-   ```
-
-2. **Git Configuration** (update `.gitconfig`)
+1. **Git Configuration** (update `.gitconfig`)
    ```bash
    git config --global user.name "Your Name"
    git config --global user.email "your@email.com"
    ```
 
-3. **Password Manager** (if using pass)
+2. **Password Manager** (if using pass)
    ```bash
    pass init your-gpg-key-id
    ```
 
-4. **Theme Customization** 
-   - Check `~/.config/hyde` for theme options
-   - Modify `~/.config/hypr/hyprland.conf` for Hyprland settings
-   - Edit `~/.config/waybar/config.jsonc` for waybar customization
+3. **Theme Customization** 
+   - Edit `configs/hyde/hyde.conf` to change the active theme
+   - Modify `configs/hypr/hyprland.lua` for keybinds and monitor layout
+   - Edit `configs/waybar/config.jsonc` for waybar customization
 
 ## Important Notes
 
 - **Backups**: The post-install script creates `.bak.TIMESTAMP` backups of overwritten files
-- **Hyde First**: Always run Hyde before the post-install script
+- **Hyde First**: Always run HyDE's `install.sh` before the post-install script
 - **AUR Packages**: Requires `yay` or `paru` to be installed
-- **Docker**: May require `sudo usermod -aG docker $USER` for non-root usage
+- **HyDE Updates**: Running `install.sh -r` will overwrite base configs but preserves files in this repo (keybinds, themes, shell customizations)
 - **Partition Selection**: The pre-install script is fully interactive - no hardcoded values
 
 ## Updating This Repository

@@ -79,6 +79,9 @@ copy_config "gtk-3.0"
 copy_config "qt5ct"
 copy_config "qt6ct"
 copy_config "swappy"
+copy_config "hyde"
+copy_config "fastfetch"
+copy_config "uwsm"
 
 # Copy config files
 if [ -d "$CONFIG_SOURCE" ]; then
